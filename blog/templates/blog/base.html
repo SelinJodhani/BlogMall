@@ -1,0 +1,165 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% comment %} <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet"> {% endcomment %}
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="{% static 'fontawesome_free/js/all.min.js' %}"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+    <link rel="stylesheet" type='text/css' href="{% static 'blog/main.css' %}">
+    <link href="{% static 'fontawesome_free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+
+    {% if title %}
+        <title>{{ title }} | Blog Mall</title>
+    {% else %}
+        <title>Blog Mall</title>
+    {% endif %}
+
+</head>
+
+<body>
+
+    <header class="site-header">
+        <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+            <div class="container">
+                <a class="navbar-brand mr-4" href="/">Blog Mall</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle"
+                    aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarToggle">
+                    <div class="navbar-nav mr-auto">
+                        <a class="nav-item nav-link" href="/">Home</a>
+                        <a class="nav-item nav-link" href="/about">About</a>
+                    </div>
+                    <!-- Navbar Right Side -->
+                    <div class="navbar-nav">
+                    
+                        {% if user.is_authenticated %}
+                            <a class="nav-item nav-link" href="{% url 'post-create' %}">New Post</a>
+                            <a class="nav-item nav-link" href="/profile">Profile</a>
+                            <a class="nav-item nav-link" href="/logout">Logout</a>
+                        {% else %}
+                            <a class="nav-item nav-link" href="/login">Login</a>
+                            <a class="nav-item nav-link" href="/register">Register</a>
+                        {% endif %}
+
+                        <button type="button" id="dark" class="btn btn-secondary" onclick='toggle()'>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon-stars-fill" viewBox="0 0 16 16">
+                                <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+                                <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+                            </svg>
+                            Dark Mode
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="container">
+        <div class="row">
+            <div class="col-md-8">
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class='alert alert-{{ message.tags }}' role='alert'>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+                
+            </div>
+
+            <!-- Sidebar Widgets Column -->
+            {% block widget %}
+                <div class="col-md-4">
+
+                    <!-- Search Widget -->
+                    <div class="card md-4">
+                        <form method="GET" action="/search">
+                            <h5 class="card-header">Search</h5>
+                            <div class="card-body">
+                                <div class="input-group">
+                                    <input name="query" id="query" type="text" class="form-control" placeholder="Search for...">
+                                    <span class="input-group-append">
+                                        <button class="btn btn-secondary" type="submit">Go!</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Categories Widget -->
+                    <div class="card my-4">
+                        <h5 class="card-header">Categories</h5>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    {% for tag in common_tags %}
+                                        <ul class="list-unstyled mb-0">
+                                            <a href="{% url 'tag-posts' tag.slug %}"><button class="tagButton">#{{ tag }}</button></a>
+                                        </ul>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card my-4">
+                        <h5 class="card-header">Latest Posts</h5>
+                        <img src="{% static 'blog/images/1.jpg' %}" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">Card title</h5>
+                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <a href="#" class="btn btn-primary">View more</a>
+                        </div>
+                    </div>
+
+                </div>
+            {% endblock widget %}
+
+        </div>
+        <!-- /.row -->
+
+        </div>
+        <!-- /.container -->
+
+        </div>
+    </main>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+    <script src='https://cdn.jsdelivr.net/npm/darkreader@4.9.27/darkreader.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/darkreader@4.9.27/index.d.ts'></script>
+    <script src='https://cdn.jsdelivr.net/npm/darkreader@4.9.27/package.json'></script>
+    <script src='{% static 'blog/toggle.js' %}'></script>
+
+</body>
+
+</html>
