@@ -9,7 +9,6 @@ from taggit.managers import TaggableManager
 from hitcount.models import HitCountMixin, HitCount
 from django.contrib.contenttypes.fields import GenericRelation
 
-
 # Create your models here.
 class Post(models.Model):
     title = models.CharField(max_length=100)
